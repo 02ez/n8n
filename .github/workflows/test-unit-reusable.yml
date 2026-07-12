@@ -34,19 +34,20 @@ on:
         required: false
         default: ''
         type: string
+
 env:
   NODE_OPTIONS: --max-old-space-size=7168
 
 jobs:
   unit-test-backend:
     name: Backend Unit Tests
-    runs-on: ${{ vars.RUNNER_PROVIDER == 'github' && 'ubuntu-latest' || 'blacksmith-4vcpu-ubuntu-2204' }}
+    runs-on: ${{ vars.RUNNER_PROVIDER == 'blacksmith' && 'blacksmith-4vcpu-ubuntu-2204' || 'ubuntu-latest' }}
     env:
       COVERAGE_ENABLED: ${{ inputs.collectCoverage }} # Coverage collected when true
       AFFECTED_PACKAGES: ${{ inputs.affectedPackages }}
       CHANGED_FILES: ${{ inputs.changedFiles }}
     steps:
-      - uses: useblacksmith/checkout@41cdeedae8edb2e684ba22896a5fd2a3cb85db6b # v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.ref }}
 
@@ -100,13 +101,13 @@ jobs:
 
   integration-test-backend:
     name: Backend Integration Tests
-    runs-on: ${{ vars.RUNNER_PROVIDER == 'github' && 'ubuntu-latest' || 'blacksmith-4vcpu-ubuntu-2204' }}
+    runs-on: ${{ vars.RUNNER_PROVIDER == 'blacksmith' && 'blacksmith-4vcpu-ubuntu-2204' || 'ubuntu-latest' }}
     env:
       COVERAGE_ENABLED: ${{ inputs.collectCoverage }} # Coverage collected when true
       AFFECTED_PACKAGES: ${{ inputs.affectedPackages }}
       CHANGED_FILES: ${{ inputs.changedFiles }}
     steps:
-      - uses: useblacksmith/checkout@41cdeedae8edb2e684ba22896a5fd2a3cb85db6b # v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.ref }}
 
@@ -160,13 +161,13 @@ jobs:
 
   unit-test-nodes:
     name: Nodes Unit Tests
-    runs-on: ${{ vars.RUNNER_PROVIDER == 'github' && 'ubuntu-latest' || 'blacksmith-4vcpu-ubuntu-2204' }}
+    runs-on: ${{ vars.RUNNER_PROVIDER == 'blacksmith' && 'blacksmith-4vcpu-ubuntu-2204' || 'ubuntu-latest' }}
     env:
       COVERAGE_ENABLED: ${{ inputs.collectCoverage }} # Coverage collected when true
       AFFECTED_PACKAGES: ${{ inputs.affectedPackages }}
       CHANGED_FILES: ${{ inputs.changedFiles }}
     steps:
-      - uses: useblacksmith/checkout@41cdeedae8edb2e684ba22896a5fd2a3cb85db6b # v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.ref }}
 
@@ -205,7 +206,7 @@ jobs:
 
   unit-test-frontend:
     name: Frontend (${{ matrix.shard }}/2)
-    runs-on: ${{ vars.RUNNER_PROVIDER == 'github' && 'ubuntu-latest' || 'blacksmith-4vcpu-ubuntu-2204' }}
+    runs-on: ${{ vars.RUNNER_PROVIDER == 'blacksmith' && 'blacksmith-4vcpu-ubuntu-2204' || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -215,7 +216,7 @@ jobs:
       AFFECTED_PACKAGES: ${{ inputs.affectedPackages }}
       CHANGED_FILES: ${{ inputs.changedFiles }}
     steps:
-      - uses: useblacksmith/checkout@41cdeedae8edb2e684ba22896a5fd2a3cb85db6b # v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.ref }}
 
