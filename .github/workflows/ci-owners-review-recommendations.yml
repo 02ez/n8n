@@ -4,7 +4,8 @@ name: 'CI: Owners Review Recommendations'
 # file ownership in .github/OWNERS) and a breakdown of changed lines by
 # category (source code, test files, misc).
 #
-# Advisory only — does not gate merging.
+# Advisory only — does not gate merging. Disabled by default in forks because
+# it requires the n8n Assistant GitHub App credentials.
 
 on:
   pull_request:
@@ -16,12 +17,26 @@ on:
       - master
 
 jobs:
+  recommendations-disabled:
+    name: Internal review recommendations disabled
+    if: vars.ENABLE_INTERNAL_REVIEW_RECOMMENDATIONS != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report credential gate
+        run: |
+          echo 'CI_MODE=fork-safe internal_review_recommendations=false reason=ENABLE_INTERNAL_REVIEW_RECOMMENDATIONS_not_true'
+          {
+            echo '## Internal review recommendations skipped'
+            echo
+            echo 'The n8n Assistant GitHub App credentials are not configured for this fork.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   recommend-reviewers:
     name: Recommend reviewers
-    # Skipped for:
-    #  - PRs from forks (no token to comment with)
-    #  - Bot-authored PRs (Dependabot, Renovate, etc. — noise, not useful)
+    # Enabled only when this fork intentionally provisions the n8n Assistant
+    # GitHub App credentials. Bot-authored PRs remain excluded as upstream.
     if: |
+      vars.ENABLE_INTERNAL_REVIEW_RECOMMENDATIONS == 'true' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.user.type != 'Bot'
     runs-on: ubuntu-latest
