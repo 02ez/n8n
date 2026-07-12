@@ -21,7 +21,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 jobs:
   publish-disabled:
@@ -41,6 +40,9 @@ jobs:
   build:
     if: vars.ENABLE_IMAGE_PUBLISH == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     strategy:
       fail-fast: false
       matrix:
