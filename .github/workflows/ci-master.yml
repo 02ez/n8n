@@ -8,6 +8,29 @@ on:
       - packages/@n8n/task-runner-python/**
 
 jobs:
+  ci-mode:
+    name: Fork-safe CI configuration
+    runs-on: ubuntu-latest
+    env:
+      RUNNER_PROVIDER: ${{ vars.RUNNER_PROVIDER || 'github' }}
+      INTERNAL_NOTIFICATIONS: ${{ vars.ENABLE_INTERNAL_NOTIFICATIONS == 'true' }}
+      AI_EVALS: ${{ vars.ENABLE_AI_EVALS == 'true' }}
+      IMAGE_PUBLISH: ${{ vars.ENABLE_IMAGE_PUBLISH == 'true' }}
+    steps:
+      - name: Report CI mode
+        run: |
+          echo "CI_MODE=fork-safe runner=${RUNNER_PROVIDER} internal_jobs=${INTERNAL_NOTIFICATIONS} ai_evals=${AI_EVALS} image_publish=${IMAGE_PUBLISH}"
+          {
+            echo '## Fork-safe CI mode'
+            echo
+            echo '| Setting | Value |'
+            echo '| --- | --- |'
+            echo "| Runner provider | ${RUNNER_PROVIDER} |"
+            echo "| Internal notifications | ${INTERNAL_NOTIFICATIONS} |"
+            echo "| AI evaluations | ${AI_EVALS} |"
+            echo "| Image publishing | ${IMAGE_PUBLISH} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   build-github:
     name: Build for Github Cache
     runs-on: ubuntu-latest
@@ -53,7 +76,7 @@ jobs:
     name: Notify Slack on failure
     runs-on: ubuntu-latest
     needs: [unit-test, lint, performance, build-github]
-    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    if: ${{ always() && contains(needs.*.result, 'failure') && vars.ENABLE_INTERNAL_NOTIFICATIONS == 'true' }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:

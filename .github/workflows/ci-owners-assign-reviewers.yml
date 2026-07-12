@@ -3,16 +3,8 @@ name: 'CI: Owners Assign Reviewers'
 # Opt-in reviewer auto-assignment.
 #
 # When a PR carries the `Auto-assign reviewers` label, requests review from
-# every team that owns a changed file (based on .github/OWNERS). Without the
-# label this is a no-op — opting in is entirely up to the PR author.
-#
-# Assignment runs once: afterwards the trigger label is swapped for a
-# `Reviewers auto-assigned` marker, and any PR already carrying that marker is
-# skipped. This keeps later `synchronize` events from re-requesting the teams.
-#
-# Runs on `labeled` (so adding the label assigns immediately) and on
-# `synchronize` (so newly-touched files still get assigned before the marker
-# lands). The label checks live in the script, so other PRs exit early.
+# every team that owns a changed file (based on .github/OWNERS). Disabled by
+# default in forks because it requires the n8n Assistant GitHub App credentials.
 
 on:
   pull_request:
@@ -24,14 +16,26 @@ on:
       - master
 
 jobs:
+  assignment-disabled:
+    name: Internal reviewer assignment disabled
+    if: vars.ENABLE_INTERNAL_REVIEW_AUTOMATION != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report credential gate
+        run: |
+          echo 'CI_MODE=fork-safe internal_review_automation=false component=assignment reason=ENABLE_INTERNAL_REVIEW_AUTOMATION_not_true'
+          {
+            echo '## Internal reviewer assignment skipped'
+            echo
+            echo 'The n8n Assistant GitHub App credentials are not configured for this fork.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   assign-reviewers:
     name: Assign reviewers
-    # Skipped for:
-    #  - PRs from forks (no token to assign with)
-    #  - Bot-authored PRs (Dependabot, Renovate, etc.), except cat-bot which
-    #    opts in explicitly so a human-applied label can route its PRs to the
-    #    owning team
+    # Enabled only when this fork intentionally provisions the n8n Assistant
+    # GitHub App credentials. Bot-authored PR behavior remains unchanged.
     if: |
+      vars.ENABLE_INTERNAL_REVIEW_AUTOMATION == 'true' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       (github.event.pull_request.user.type != 'Bot' ||
        github.event.pull_request.user.login == 'n8n-cat-bot[bot]')
