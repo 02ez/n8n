@@ -19,12 +19,12 @@ on:
 jobs:
   recommendations-disabled:
     name: Internal review recommendations disabled
-    if: vars.ENABLE_INTERNAL_REVIEW_RECOMMENDATIONS != 'true'
+    if: vars.ENABLE_INTERNAL_REVIEW_AUTOMATION != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Report credential gate
         run: |
-          echo 'CI_MODE=fork-safe internal_review_recommendations=false reason=ENABLE_INTERNAL_REVIEW_RECOMMENDATIONS_not_true'
+          echo 'CI_MODE=fork-safe internal_review_automation=false component=recommendations reason=ENABLE_INTERNAL_REVIEW_AUTOMATION_not_true'
           {
             echo '## Internal review recommendations skipped'
             echo
@@ -36,7 +36,7 @@ jobs:
     # Enabled only when this fork intentionally provisions the n8n Assistant
     # GitHub App credentials. Bot-authored PRs remain excluded as upstream.
     if: |
-      vars.ENABLE_INTERNAL_REVIEW_RECOMMENDATIONS == 'true' &&
+      vars.ENABLE_INTERNAL_REVIEW_AUTOMATION == 'true' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.user.type != 'Bot'
     runs-on: ubuntu-latest
