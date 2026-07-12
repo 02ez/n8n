@@ -33,9 +33,28 @@ on:
         required: false
         default: '1'
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
+  fork-safe-disabled:
+    name: AI evaluations disabled
+    if: vars.ENABLE_AI_EVALS != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report credential gate
+        run: |
+          echo 'CI_MODE=fork-safe ai_evals=false reason=ENABLE_AI_EVALS_not_true'
+          {
+            echo '## AI evaluations skipped'
+            echo
+            echo 'Set `ENABLE_AI_EVALS=true` only after the required evaluation credentials are provisioned.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   check-skip:
     name: Check Skip Label
+    if: vars.ENABLE_AI_EVALS == 'true'
     runs-on: ubuntu-latest
     outputs:
       should_skip: ${{ steps.check.outputs.should_skip }}
