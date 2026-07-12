@@ -9,6 +9,7 @@ The workflows are safe when these variables are unset. The recommended explicit 
 ```text
 RUNNER_PROVIDER=github
 ENABLE_INTERNAL_NOTIFICATIONS=false
+ENABLE_INTERNAL_REVIEW_RECOMMENDATIONS=false
 ENABLE_AI_EVALS=false
 ENABLE_IMAGE_PUBLISH=false
 ```
@@ -20,6 +21,7 @@ ENABLE_IMAGE_PUBLISH=false
 | Variable | Default | Effect when enabled |
 | --- | --- | --- |
 | `ENABLE_INTERNAL_NOTIFICATIONS` | `false` | Allows the master CI workflow to send the private Slack failure notification. |
+| `ENABLE_INTERNAL_REVIEW_RECOMMENDATIONS` | `false` | Allows the n8n Assistant GitHub App to post reviewer recommendations. |
 | `ENABLE_AI_EVALS` | `false` | Allows credential-backed AI evaluation workflows to run. |
 | `ENABLE_IMAGE_PUBLISH` | `false` | Allows the private DHI/DockerHub/GHCR base-image workflow to run. |
 
@@ -42,14 +44,15 @@ The fork-safe PR workflow runs:
 - package dry-run validation
 - aggregate required-check gate
 
-Upstream internal E2E infrastructure, private metrics reporting, Slack notifications, private image publishing, and credential-backed AI evaluations are intentionally excluded.
+Upstream internal E2E infrastructure, private metrics reporting, Slack notifications, GitHub App reviewer recommendations, private image publishing, and credential-backed AI evaluations are intentionally excluded.
 
 ## Observability
 
-Fork-safe workflows emit a GitHub Actions summary and a log line in this form:
+Fork-safe workflows emit GitHub Actions summaries and log lines such as:
 
 ```text
 CI_MODE=fork-safe runner=github internal_jobs=false ai_evals=false image_publish=false
+CI_MODE=fork-safe internal_review_recommendations=false
 ```
 
 ## Rollback
