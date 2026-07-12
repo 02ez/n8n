@@ -19,8 +19,27 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
+  publish-disabled:
+    name: Private image publishing disabled
+    if: vars.ENABLE_IMAGE_PUBLISH != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report credential gate
+        run: |
+          echo 'CI_MODE=fork-safe image_publish=false reason=ENABLE_IMAGE_PUBLISH_not_true'
+          {
+            echo '## Base image publishing skipped'
+            echo
+            echo 'This image depends on the authenticated DHI registry and is disabled until publishing credentials are intentionally provisioned.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   build:
+    if: vars.ENABLE_IMAGE_PUBLISH == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
